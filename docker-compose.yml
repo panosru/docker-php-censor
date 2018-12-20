@@ -1,24 +1,95 @@
-version: '2.1'
+version: '3.7'
+
+volumes:
+  ? postgres_data
+  ? postgres_backup
+  ? phpcensor_src
+  ? beanstalk_data
+
 services:
+
+  app:
+    build:
+      context: ./app
+    container_name: phpcensor-app
+    restart: always
+    cap_add:
+      - CAP_SYS_PTRACE
+    privileged: true
+    expose:
+      - 9000
+    env_file:
+      - ./env/phpcensor.env
+    volumes:
+      - phpcensor_src:/var/www
+      - ./app/config.tmpl.yml:/var/www/app/config.yml
+      - ./app/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./app/logs/xdebug.log:/tmp/xdebug.log
+      - ./app/logs/debug:/tmp/debug
+    depends_on:
+      - db
+      - queue
+
   web:
-    image: "phpcensor/php-censor-web:latest"
+    image: nginx:latest
+    container_name: phpcensor-web
+    restart: always
+    cap_add:
+      - CAP_SYS_PTRACE
+    privileged: true
+    env_file:
+      - ./env/web.env
+    volumes:
+      - phpcensor_src:/var/www
+      - ./web/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./web/logs/access.log:/var/log/nginx/access.log
+      - ./web/logs/error.log:/var/log/nginx/error.log
+    expose:
+      - 80
     ports:
-    - "80:80"
-    env_file:
-    - ./env/phpcensor.env
+      - 80:80
+    depends_on:
+      - app
+
   worker:
-    image: "phpcensor/php-censor-worker:latest"
+    build:
+      context: ./worker
+    container_name: phpcensor-worker
+    restart: always
+    cap_add:
+      - CAP_SYS_PTRACE
+    privileged: true
     env_file:
-    - ./env/phpcensor.env
+      - ./env/phpcensor.env
+    volumes:
+      - phpcensor_src:/var/www
+      - ./app/config.tmpl.yml:/var/www/app/config.yml
+      - ./app/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./app/logs/xdebug.log:/tmp/xdebug.log
+      - ./app/logs/debug:/tmp/debug
+    depends_on:
+      - app
+
   db:
-    image: "postgres"
+    image: postgres
+    container_name: phpcensor-db
+    restart: always
     user: postgres
     env_file:
-    - ./env/database.pgsql.env
-  queue:
-    image: "schickling/beanstalkd"
-    networks:
-      default:
-        aliases:
-        - beanstalk
+      - ./env/database.pgsql.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
 
+  queue:
+    build:
+      context: ./queue
+    container_name: phpcensor-queue
+    restart: always
+    volumes:
+      - beanstalk_data:/data
+
+networks:
+  default:
+    external:
+      name: webservices

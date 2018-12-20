@@ -1,5 +1,5 @@
-#!/bin/sh
-set -eo pipefail
+#!/bin/bash
+set -e
 
 # Check external services (db, queue) on ready
 wait_for_external_services() {
@@ -33,18 +33,12 @@ parse_args() {
 # Entrypoint
 main() {
     parse_args
-    
-    if [ ! -f ./app/config.yml ]; then
-        envsubst < /config.tmpl.yml > ./app/config.yml
-    fi
-    
-    wait_for_external_services
 
+    wait_for_external_services
 
     ./bin/console php-censor:install --config-from-file=yes --admin-name="$ADMIN_NAME" \
         --admin-password="$ADMIN_PASSWORD" --admin-email="$ADMIN_EMAIL"
 
-    nginx
     php-fpm
 }
 

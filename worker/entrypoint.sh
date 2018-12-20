@@ -1,10 +1,9 @@
-#!/bin/sh
-set -eo pipefail
+#!/bin/bash
+set -e
 
 # Check external services (db, queue) on ready
 wait_for_external_services() {
     local BEANSTALK_DEFAULT_PORT="11300"
-
     while ! ( nc -w 2 -v "$DB_HOST" "$DB_PORT" < /dev/null && nc -w 2 -v "$BEANSTALK_HOST" $BEANSTALK_DEFAULT_PORT < /dev/null )
     do
       echo "Wait for db and queue"
@@ -34,11 +33,7 @@ parse_args() {
 # Entrypoint
 main() {
     parse_args
-    
-    if [ ! -f ./app/config.yml ]; then
-        envsubst < /config.tmpl.yml > ./app/config.yml
-    fi
-    
+
     wait_for_external_services
 
     if [ -f /docker-init.d/install.sh ]; then
@@ -46,7 +41,7 @@ main() {
         . /docker-init.d/install.sh
         echo "Installing is done."
     fi
-    
+
     ./bin/console php-censor:worker --periodical-work
 }
 
