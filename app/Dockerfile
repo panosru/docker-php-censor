@@ -16,5 +16,6 @@ RUN rm -rf ./html && \
     composer install
 
 COPY entrypoint.sh /entrypoint.sh
+COPY config.tmpl.yml /config.tmpl.yml
 
 ENTRYPOINT ["/entrypoint.sh"]

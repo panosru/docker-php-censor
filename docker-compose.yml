@@ -22,7 +22,6 @@ services:
       - ./env/phpcensor.env
     volumes:
       - phpcensor_src:/var/www
-      - ./app/config.tmpl.yml:/var/www/app/config.yml
       - ./app/php.ini:/usr/local/etc/php/conf.d/php.ini
       - ./app/logs/xdebug.log:/tmp/xdebug.log
       - ./app/logs/debug:/tmp/debug
@@ -39,6 +38,7 @@ services:
     privileged: true
     env_file:
       - ./env/web.env
+      - ./env/phpcensor.env
     volumes:
       - phpcensor_src:/var/www
       - ./web/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -63,7 +63,6 @@ services:
       - ./env/phpcensor.env
     volumes:
       - phpcensor_src:/var/www
-      - ./app/config.tmpl.yml:/var/www/app/config.yml
       - ./app/php.ini:/usr/local/etc/php/conf.d/php.ini
       - ./app/logs/xdebug.log:/tmp/xdebug.log
       - ./app/logs/debug:/tmp/debug
@@ -71,7 +70,7 @@ services:
       - app
 
   db:
-    image: postgres
+    image: postgres:11
     container_name: phpcensor-db
     restart: always
     user: postgres

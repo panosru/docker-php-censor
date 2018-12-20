@@ -34,6 +34,10 @@ parse_args() {
 main() {
     parse_args
 
+    if [ ! -f ./app/config.yml ]; then
+        envsubst < /config.tmpl.yml > ./app/config.yml
+    fi
+
     wait_for_external_services
 
     if [ -f /docker-init.d/install.sh ]; then
