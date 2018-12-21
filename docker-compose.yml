@@ -12,7 +12,6 @@ services:
     build:
       context: ./app
     container_name: phpcensor-app
-    restart: always
     cap_add:
       - CAP_SYS_PTRACE
     privileged: true
@@ -32,7 +31,6 @@ services:
   web:
     image: nginx:latest
     container_name: phpcensor-web
-    restart: always
     cap_add:
       - CAP_SYS_PTRACE
     privileged: true
@@ -53,7 +51,6 @@ services:
     build:
       context: ./worker
     container_name: phpcensor-worker
-    restart: always
     cap_add:
       - CAP_SYS_PTRACE
     privileged: true
@@ -70,7 +67,6 @@ services:
   db:
     image: postgres:11
     container_name: phpcensor-db
-    restart: always
     user: postgres
     env_file:
       - ./env/database.pgsql.env
@@ -82,7 +78,6 @@ services:
     build:
       context: ./queue
     container_name: phpcensor-queue
-    restart: always
     volumes:
       - beanstalk_data:/data
 
