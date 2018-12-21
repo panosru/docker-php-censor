@@ -132,3 +132,33 @@ RUN pecl clear-cache \
     && apt-get clean \
     && rm -Rf /tmp/*
 ```
+
+Use a `docker-compose.prod.yml` file, mine looks like this:
+
+```
+version: '3.7'
+
+services:
+
+  app:
+    env_file:
+      - ./env/prod/phpcensor.env
+
+  web:
+    env_file:
+      - ./env/prod/web.env
+      - ./env/prod/phpcensor.env
+    environment:
+      VIRTUAL_HOST: mydomain.com
+      LETSENCRYPT_HOST: mydomain.com
+      LETSENCRYPT_EMAIL: johndoe@domain.com
+
+  worker:
+    env_file:
+      - ./env/prod/phpcensor.env
+
+  db:
+    env_file:
+      - ./env/prod/database.pgsql.env
+```
+I'm using nginx-proxy and in production env I start my containers with `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`

@@ -46,8 +46,6 @@ services:
       - ./web/logs/error.log:/var/log/nginx/error.log
     expose:
       - 80
-    ports:
-      - 80:80
     depends_on:
       - app
 
