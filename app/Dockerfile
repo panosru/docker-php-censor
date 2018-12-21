@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/panosru/docker/php:dev
+FROM panosru/php:latest
 
 RUN yes '' | apt-get install netcat gettext-base unzip
 
