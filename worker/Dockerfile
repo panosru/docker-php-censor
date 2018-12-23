@@ -1,6 +1,6 @@
 FROM panosru/php:latest
 
-RUN yes '' | apt-get install netcat gettext-base unzip
+RUN yes '' | apt-get install netcat gettext-base unzip openssh-client
 
 # Clean up
 RUN apt-get autoremove -y --purge \
